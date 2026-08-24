@@ -58,8 +58,8 @@ const appRoot = root;
 const t = (zh: string, en: string): LocalizedText => ({ zh, en });
 
 const EXTRA_COPY = {
-  readyTitle: t("可以检查当前结构", "Ready to check this structure"),
-  readyBody: t("结果只来自当前页面中的显式规则。", "The result comes only from explicit rules in this page."),
+  readyTitle: t("可以检查了", "Ready to check"),
+  readyBody: t("现在可以看看这些选择接出了什么。", "You can now see what these choices connect."),
   unavailable: t("未开放", "Unavailable"),
   available: t("可用", "Available"),
   open: t("仍开放", "Open"),
@@ -67,48 +67,48 @@ const EXTRA_COPY = {
   closed: t("已闭合", "Closed"),
   inactive: t("未启动", "Inactive"),
   graphSummary: t(
-    "连线只在具体选项命中规则时出现；没有命中的地方会保持空白。",
-    "A link appears only when specific options match a rule; unmatched space remains blank.",
+    "图上只画已经有依据的线。空着的地方，仍由你决定。",
+    "The map draws only rule-backed links. Empty space still belongs to you.",
   ),
-  noFindings: t("当前没有这一类判断。", "There is no finding of this kind yet."),
-  noSelectionsOverview: t("尚未选择任何设定。", "No setting has been selected yet."),
-  chapterActorA: t("先完成她的五个判断；这些选项不会被复制给他。", "Start with her five decisions; none are copied to him."),
-  chapterActorB: t("再独立完成他的五个判断；两个人可以真正意见相左。", "Now decide his five independently; the pair may genuinely disagree."),
-  routeKeyStateEmpty: t("页面内存中没有 Key。", "No key is present in page memory."),
-  routeKeyStateSet: t("Key 只在当前页面内存中；刷新或关闭即清除。", "The key exists only in this page memory and clears on refresh or close."),
-  draftUnavailable: t("浏览器存储不可用，本次不会保存草稿。", "Browser storage is unavailable; this draft will not be saved."),
-  seedHint: t("同一种子会得到相同的起点与排列。", "The same seed produces the same start and ordering."),
+  noFindings: t("这里暂时没有内容。", "Nothing here yet."),
+  noSelectionsOverview: t("还没选东西。", "Nothing selected yet."),
+  chapterActorA: t("先替她选五项；他的栏目不会跟着填写。", "Choose five things for her; his column will not fill itself."),
+  chapterActorB: t("再替他选。他可以和她完全不同。", "Now choose for him. His answers may be entirely different."),
+  routeKeyStateEmpty: t("本页没有暂存 Key。", "No key is held in this page."),
+  routeKeyStateSet: t("Key 暂存在本页；刷新或关页就会清掉。", "The key is held in this page and clears on refresh or close."),
+  draftUnavailable: t("浏览器不允许使用本地存储，这次不会保存草稿。", "Browser storage is unavailable, so this draft will not be kept."),
+  seedHint: t("同一个种子会排出同一组起点。", "The same seed produces the same starting set."),
   previewMetrics: {
-    edges: t("成立连线", "Links"),
-    conflicts: t("明确冲突", "Conflicts"),
-    gaps: t("待承接", "Gaps"),
-    structure: t("整体结构", "Overall structure"),
+    edges: t("已经接上", "Links"),
+    conflicts: t("冲突", "Conflicts"),
+    gaps: t("还缺", "Gaps"),
+    structure: t("整条线", "Overall path"),
   },
   helpSteps: [
-    t("先为境遇、两位角色、关系与代价作出少量具体选择；不必把每条轴填满。", "Choose a few concrete options across context, both characters, relationship, and cost; you do not need to fill every axis."),
-    t("命运图只展示规则实际命中的选项级连线，并把冲突与缺口分开列出。", "The fate map shows only option-level links actually matched by rules, with conflicts and gaps listed separately."),
-    t("“开放结构”允许保留问题；“闭合命运”只有在路径确实闭合时才能检查。", "Open Outline permits unresolved questions; Closed Fate is available only after a path genuinely closes."),
-    t("当前版本不调用模型。站点体验与自带密钥都保持关闭，直到安全条件和具体供应商通过审核。", "This build calls no model. Hosted and BYOK routes remain closed until their safety conditions and providers are reviewed."),
+    t("从境遇、两个人和关系里各挑一两项。还没想好的，可以空着。", "Pick one or two items from the context, each character, and the relationship. Leave the rest open."),
+    t("打开命运图，看哪些选择已经相连，哪些彼此冲突，哪条路还缺一环。", "Open the fate map to see what connects, what collides, and where a path still breaks."),
+    t("还在摸索时用“开放结构”；准备收束时再试“闭合命运”。", "Use Open Outline while exploring; switch to Closed Fate when you are ready to finish the line."),
+    t("这版不调用模型。另两条路线只是留位，现在都不能用。", "This build calls no model. The other two routes are placeholders and remain unavailable."),
   ],
-  axisModalIntro: t("这条轴一次只选一项，也可以暂时保持开放。", "This axis accepts one option at a time and may remain open."),
+  axisModalIntro: t("一次选一项。现在不想定，也可以先空着。", "Choose one item, or leave the axis open for now."),
   riskPrefix: t("涉及：", "Touches: "),
-  randomComplete: t("已按当前种子填入四个起点。", "Four starting points were filled from the current seed."),
-  gapComplete: t("已按规则补入一个必要选项。", "One rule-backed requirement was filled."),
-  exported: t("配置已导出；专用 Key 字段不在文件中。", "Configuration exported; the dedicated key field is not in the file."),
-  clearKeyDone: t("页面内存中的 Key 已清除。", "The key in page memory was cleared."),
-  previewCopyFailed: t("无法访问剪贴板，请改用导出。", "Clipboard access failed; use export instead."),
+  randomComplete: t("起点已经放进来了。", "Starting points were added."),
+  gapComplete: t("补了一项，看看这条线有没有往前走。", "One item was added; see whether the line moves forward."),
+  exported: t("配置 JSON 已下载。专用 Key 输入框的内容不会写进文件。", "The configuration JSON was downloaded. The dedicated key field is not included."),
+  clearKeyDone: t("本页暂存的 Key 已清掉。", "The key held by this page was cleared."),
+  previewCopyFailed: t("浏览器没有允许复制。", "The browser did not allow clipboard access."),
   resultMode: {
     outline: t("开放结构", "Open Outline"),
     full: t("闭合命运", "Closed Fate"),
   },
-  pathLabel: t("路径", "Path"),
-  acceptableLabel: t("可承接选项", "Options that can carry it"),
-  incompatibleSelection: t("当前选择不能承接这条路径。", "The current selection cannot carry this path."),
-  noSafeGapFill: t("没有可安全自动填入的选项；已带你前往该轴手动判断。", "No option can be inserted safely; the relevant axis is open for your decision."),
-  notReadyTitle: t("还不能预检", "Not ready to check"),
+  pathLabel: t("这条路", "Path"),
+  acceptableLabel: t("可以接上的选项", "Options that can connect it"),
+  incompatibleSelection: t("现在选的这一项接不上。", "The current choice does not connect here."),
+  noSafeGapFill: t("这里没有合适的代填答案。我把对应的轴打开了，留给你选。", "There is no safe answer to fill for you. The relevant axis is open for your choice."),
+  notReadyTitle: t("还不能查看", "Not ready yet"),
   skipWorkspace: t("跳到命运工作台", "Skip to the fate workbench"),
-  allRequired: t("同时满足", "All required"),
-  convergence: t("汇合", "Converge"),
+  allRequired: t("这几项要一起成立", "All of these are required"),
+  convergence: t("在这里合到一起", "Meet here"),
 } as const;
 
 // Real model routes require an explicit release decision in addition to an adapter.
@@ -678,6 +678,7 @@ function createFateColumn(
   panel.append(createFindingSection(localized(UI_COPY.conflicts), graph.conflicts.map((conflict) => ({ id: conflict.id, title: localized(conflict.label), body: localized(conflict.rationale), tone: "conflict" }))));
   panel.append(createFindingSection(localized(UI_COPY.gaps), graph.gaps.map((gap) => {
     const current = gap.selectedOption ? getOption(gap.selectedOption) : undefined;
+    const path = graph.paths?.find((candidate) => candidate.id === gap.pathId);
     const acceptable = gap.acceptableOptions
       ?.map((optionId) => getOption(optionId))
       .filter((option) => option !== undefined)
@@ -688,7 +689,7 @@ function createFateColumn(
     ].filter(Boolean).join(" ");
     return {
       id: gap.id,
-      title: `${localized(EXTRA_COPY.pathLabel)} ${gap.pathId} · ${localized(getAxis(gap.requiredAxis)?.label ?? UI_COPY.gaps)}`,
+      title: `${localized(path?.label ?? EXTRA_COPY.pathLabel)} · ${localized(getAxis(gap.requiredAxis)?.label ?? UI_COPY.gaps)}`,
       body: details,
       tone: "gap",
     };
@@ -880,7 +881,7 @@ function fillRandomStart(): void {
   safePersist();
   currentPreview = null;
   render();
-  announce(state.locale === "zh" ? `已按当前种子补入 ${added} 个起点。` : `${added} starting ${added === 1 ? "point was" : "points were"} added from the current seed.`);
+  announce(state.locale === "zh" ? `这次补进了 ${added} 个起点。` : `${added} starting ${added === 1 ? "point was" : "points were"} added.`);
 }
 
 function fillRuleBackedGap(graph: FateGraph): void {

@@ -1,4 +1,5 @@
-import type { FateGraph, LocalizedText, MatchedRelation } from "../domain/types";
+import { getOption } from "../domain/content";
+import type { FateGraph, LocalizedText, MatchedRelation, RelationKind } from "../domain/types";
 import type { FateAnalysis } from "./contracts";
 import { APP_COPY } from "./copy";
 import { seededOrder } from "./random";
@@ -49,8 +50,23 @@ export type PreviewBuildResult =
   | { readonly ok: true; readonly preview: StructurePreview }
   | { readonly ok: false; readonly issues: readonly PreviewIssue[] };
 
+const relationKindCopy: Readonly<Record<Exclude<RelationKind, "conflict">, LocalizedText>> = {
+  causal: { zh: "因果", en: "cause" },
+  support: { zh: "支持", en: "support" },
+  tension: { zh: "张力", en: "tension" },
+  open: { zh: "开放", en: "open" },
+};
+
+function optionNames(value: string): LocalizedText {
+  const options = value.split(" + ").map((optionId) => getOption(optionId));
+  return {
+    zh: options.map((option, index) => option?.label.zh ?? value.split(" + ")[index]).join(" + "),
+    en: options.map((option, index) => option?.label.en ?? value.split(" + ")[index]).join(" + "),
+  };
+}
+
 export function previewEligibility(state: AppState, analysis: FateAnalysis): readonly PreviewIssue[] {
-  if (state.outputMode === "full" && analysis.closure.closedPathIds.length === 0) {
+  if (state.outputMode === "full" && !analysis.closure.isFullyClosed) {
     return [{ code: "FULL_REQUIRES_CLOSED_PATH", message: APP_COPY.preview.fullNeedsClosedPath }];
   }
   return [];
@@ -74,10 +90,10 @@ function closureItems(analysis: FateAnalysis, seed: string): readonly PreviewIte
     text: path.summary,
     meta:
       path.status === "closed"
-        ? { zh: "路径已闭合", en: "Path closed" }
+        ? { zh: "这条路走通了", en: "This path runs through" }
         : path.status === "blocked"
-          ? { zh: "路径被冲突阻断", en: "Path blocked by conflict" }
-          : { zh: "路径仍开放", en: "Path remains open" },
+          ? { zh: "被冲突截断", en: "Blocked by conflict" }
+          : { zh: "还没走到底", en: "Still open" },
     tone: path.status === "closed" ? "positive" : path.status === "blocked" ? "danger" : "warning",
   }));
 }
@@ -90,7 +106,10 @@ function edgeItems(analysis: FateAnalysis, seed: string): readonly PreviewItem[]
   return edges.map((edge) => ({
     id: edge.id,
     text: edge.rationale,
-    meta: { zh: `${edge.from} → ${edge.to} · ${edge.kind}`, en: `${edge.from} → ${edge.to} · ${edge.kind}` },
+    meta: {
+      zh: `${optionNames(edge.from).zh} → ${optionNames(edge.to).zh} · ${relationKindCopy[edge.kind].zh}`,
+      en: `${optionNames(edge.from).en} → ${optionNames(edge.to).en} · ${relationKindCopy[edge.kind].en}`,
+    },
     tone: edge.kind === "tension" ? "warning" : edge.kind === "open" ? "neutral" : "positive",
   }));
 }
@@ -102,8 +121,8 @@ function conflictItems(analysis: FateAnalysis, seed: string): readonly PreviewIt
   }
   return conflicts.map((conflict) => ({
     id: conflict.id,
-    text: conflict.message,
-    meta: conflict.repair,
+    text: conflict.repair ?? conflict.message,
+    meta: conflict.repair === undefined ? undefined : conflict.message,
     tone: conflict.severity === "blocking" ? "danger" : "warning",
   }));
 }
@@ -159,8 +178,8 @@ export function buildStructurePreview(state: AppState, analysis: FateAnalysis): 
           id: "edges",
           title: APP_COPY.preview.section.edges,
           summary: {
-            zh: `已形成 ${analysis.edges.length} 条选项级关系。`,
-            en: `${analysis.edges.length} option-level ${analysis.edges.length === 1 ? "relation has" : "relations have"} formed.`,
+            zh: `${analysis.edges.length} 条线已经有依据。`,
+            en: `${analysis.edges.length} rule-backed ${analysis.edges.length === 1 ? "link is" : "links are"} present.`,
           },
           items: edgeItems(analysis, state.seed),
         },
@@ -181,14 +200,6 @@ export function buildStructurePreview(state: AppState, analysis: FateAnalysis): 
   };
 }
 
-function joinLocalized(items: readonly LocalizedText[], fallback: LocalizedText): LocalizedText {
-  if (items.length === 0) return fallback;
-  return {
-    zh: items.map((item) => item.zh).join("；"),
-    en: items.map((item) => item.en).join("; "),
-  };
-}
-
 function relationForRule(relations: readonly MatchedRelation[], ruleId: string): MatchedRelation | undefined {
   return relations.find((relation) => relation.ruleId === ruleId);
 }
@@ -199,26 +210,34 @@ export function fateGraphToPreviewAnalysis(graph: FateGraph): FateAnalysis {
   const active = graph.closure.status !== "inactive";
   const closed = graph.closure.isClosed;
   const fallbackSummary: LocalizedText = closed
-    ? { zh: "核心命运织路已经闭合。", en: "The core fate weave is closed." }
+    ? { zh: "主线已经走通。", en: "The main path runs through." }
     : graph.closure.status === "blocked"
-      ? { zh: "核心命运织路被冲突或必要缺口阻断。", en: "A conflict or required gap blocks the core fate weave." }
+      ? { zh: "冲突或缺口把主线截断了。", en: "A conflict or required gap blocks the main path." }
       : active
-        ? { zh: "核心命运织路已经启动，但仍保持开放。", en: "The core fate weave is active but remains open." }
+        ? { zh: "主线已经起头，还没有走到底。", en: "The main path has started but does not reach the end." }
         : APP_COPY.preview.noActivePath;
 
-  const derivedPaths = graph.paths?.map((path) => ({
-    id: path.id,
-    status: path.status,
-    edgeIds: path.edgeIds,
-    summary: joinLocalized(path.reasons, path.label),
-  }));
+  const derivedPaths = graph.paths?.map((path) => {
+    const firstReason = path.reasons[0];
+    return {
+      id: path.id,
+      status: path.status,
+      edgeIds: path.edgeIds,
+      summary: firstReason === undefined
+        ? path.label
+        : {
+            zh: `${path.label.zh}：${firstReason.zh}`,
+            en: `${path.label.en}: ${firstReason.en}`,
+          },
+    };
+  });
   const paths = derivedPaths ?? (active
     ? [
         {
           id: pathId,
           status: closed ? "closed" as const : graph.closure.status === "blocked" ? "blocked" as const : "open" as const,
           edgeIds: graph.edges.map((edge) => edge.id),
-          summary: joinLocalized(graph.closure.reasons, fallbackSummary),
+          summary: graph.closure.reasons[0] ?? fallbackSummary,
         },
       ]
     : []);

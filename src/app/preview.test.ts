@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { FateGraph } from "../domain/types";
 import type { FateAnalysis, LocalizedText } from "./contracts";
+import { APP_COPY } from "./copy";
 import { buildStructurePreview, generateStructurePreview } from "./preview";
 import { createInitialAppState, reduceAppState } from "./state";
 
@@ -110,15 +111,17 @@ const DOMAIN_GRAPH: FateGraph = {
 };
 
 describe("offline structure check", () => {
-  it("honestly builds an open outline from causal edges, conflicts, gaps, and closure", () => {
+  it("builds an open outline from links, conflicts, gaps, and closure", () => {
     const state = createInitialAppState({ seed: "audit-seed" });
     const result = buildStructurePreview(state, OPEN_ANALYSIS);
     expect(result.ok).toBe(true);
     if (!result.ok) return;
 
     expect(result.preview.kind).toBe("structure-preview");
-    expect(result.preview.name).toEqual({ zh: "结构预检", en: "Structure Check" });
-    expect(result.preview.disclaimer.zh).toContain("不是故事场景");
+    expect(result.preview.name.zh).toBeTruthy();
+    expect(result.preview.name.en).toBeTruthy();
+    expect(result.preview.disclaimer.zh).toContain("故事正文");
+    expect(result.preview.disclaimer.en).toContain("story prose");
     expect(result.preview.status).toBe("open");
     expect(result.preview.metrics).toEqual({
       edgeCount: 2,
@@ -133,9 +136,10 @@ describe("offline structure check", () => {
     const gaps = result.preview.sections.find((section) => section.id === "gaps");
     const closure = result.preview.sections.find((section) => section.id === "closure");
     expect(edges?.items.map((item) => item.text.zh)).toContain("保护欲迫使他违抗命令。");
-    expect(conflicts?.items[0]?.text.zh).toContain("退出权");
+    expect(conflicts?.items[0]?.text.zh).toContain("退出机制");
+    expect(conflicts?.items[0]?.meta?.zh).toContain("退出权");
     expect(gaps?.items[0]?.text.zh).toContain("代价");
-    expect(closure?.summary.zh).toContain("还没有路径闭合");
+    expect(closure?.summary.zh).toContain("没有一条走到底");
   });
 
   it("allows gaps in outline mode but blocks full mode without a closed fate path", () => {
@@ -149,19 +153,42 @@ describe("offline structure check", () => {
     expect(result.issues).toEqual([
       expect.objectContaining({ code: "FULL_REQUIRES_CLOSED_PATH" }),
     ]);
-    expect(result.issues[0]?.message.en).toContain("at least one closed path");
+    expect(result.issues[0]?.message.zh).toBeTruthy();
+    expect(result.issues[0]?.message.en).toBeTruthy();
   });
 
-  it("builds full mode once at least one closed path exists", () => {
+  it("builds full mode once every active path is closed", () => {
     const full = reduceAppState(createInitialAppState(), { type: "set-output-mode", outputMode: "full" });
     const result = buildStructurePreview(full, CLOSED_ANALYSIS);
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.preview.status).toBe("closed");
-    expect(result.preview.sections[0]?.summary).toEqual({
-      zh: "全部 1 条已启动路径均已闭合。",
-      en: "The only active path is closed.",
+    expect(result.preview.metrics.closedPathCount).toBe(1);
+    expect(result.preview.sections[0]?.summary.zh).toContain("走通");
+  });
+
+  it("blocks full mode when one of several active paths remains open", () => {
+    const full = reduceAppState(createInitialAppState(), { type: "set-output-mode", outputMode: "full" });
+    const result = buildStructurePreview(full, {
+      ...CLOSED_ANALYSIS,
+      paths: [
+        ...CLOSED_ANALYSIS.paths,
+        {
+          id: "path-still-open",
+          status: "open",
+          edgeIds: [],
+          summary: t("另一条路还没接完。", "Another path is still open."),
+        },
+      ],
+      closure: {
+        activePathCount: 2,
+        closedPathIds: ["path-choice-cost-ending"],
+        isFullyClosed: false,
+      },
     });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues[0]?.code).toBe("FULL_REQUIRES_CLOSED_PATH");
   });
 
   it("uses the seed to produce a reproducible presentation order", () => {
@@ -171,6 +198,28 @@ describe("offline structure check", () => {
       edges: [...OPEN_ANALYSIS.edges].reverse(),
     });
     expect(first).toEqual(second);
+  });
+
+  it.each([
+    [0, 0, "没有冲突把路截断。"],
+    [1, 0, "1 处冲突把路截断了。"],
+    [0, 2, "没有冲突截断路径；还有 2 处提醒可以一并看看。"],
+    [1, 2, "1 处冲突把路截断；另有 2 处提醒不会截断路径。"],
+  ])("writes conflict counts without empty bookkeeping (%i, %i)", (blocking, warning, expectedZh) => {
+    const copy = APP_COPY.preview.conflictSummary(blocking, warning);
+    expect(copy.zh).toBe(expectedZh);
+    expect(copy.en).toBeTruthy();
+  });
+
+  it.each([
+    [0, 0, "眼下没有绕不过去的缺口。"],
+    [1, 0, "1 项不补就接不上。"],
+    [0, 2, "没有非补不可的地方；还有 2 项可以以后再想。"],
+    [1, 2, "1 项不补就接不上；另有 2 项可以以后再想。"],
+  ])("writes gap counts without empty bookkeeping (%i, %i)", (required, recommended, expectedZh) => {
+    const copy = APP_COPY.preview.gapSummary(required, recommended);
+    expect(copy.zh).toBe(expectedZh);
+    expect(copy.en).toBeTruthy();
   });
 
   it("adapts the domain graph directly and uses strict graph closure for full mode", () => {

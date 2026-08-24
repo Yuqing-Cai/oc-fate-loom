@@ -5,41 +5,41 @@ const t = (zh: string, en: string): LocalizedText => ({ zh, en });
 export const APP_COPY = {
   route: {
     offline: {
-      label: t("离线结构预检", "Offline Structure Check"),
+      label: t("只看结构", "Structure only"),
       description: t(
-        "只检查因果边、冲突、缺口与闭合路径；不会联网，也不会冒充成小说场景。",
-        "Checks causal edges, conflicts, gaps, and closed paths only. It never connects to the internet or pretends to be a prose scene.",
+        "在浏览器里核对连线、冲突和缺口，不写正文。",
+        "Checks links, conflicts, and gaps in the browser. It does not write prose.",
       ),
-      privacy: t("所有计算都在当前页面完成。", "All computation happens in this page."),
+      privacy: t("运行结构检查时，不调用模型或第三方服务。", "Running this check calls no model or third-party service."),
     },
     default: {
       label: t("站点体验", "Hosted Experience"),
       description: t(
-        "使用站点维护者配置的受限模型服务。",
-        "Uses a restricted model service configured by the site owner.",
+        "以后由本站提供一个默认模型，打开页面就能试。",
+        "A future default model will let visitors try the site without bringing a key.",
       ),
       unavailable: t(
-        "站点模型尚未配置；待预算、限流与滥用防护就绪后再开放。",
-        "No hosted model is configured. This route will open only after budgets, rate limits, and abuse controls are ready.",
+        "还没有选定模型，也没有部署转发服务。这一项暂时不能用。",
+        "No model or relay has been chosen yet, so this route is unavailable.",
       ),
       privacy: t(
-        "开放后只会发送生成所需的结构化配置，不会接收访客密钥。",
-        "When enabled, it will send only the structured configuration needed for generation and will never accept a visitor API key.",
+        "当前不会发送任何内容。正式开放时，页面会另行说明发送哪些字段、是否保存以及保存多久。",
+        "Nothing is sent today. Before this route opens, the page will state which fields are sent, whether they are retained, and for how long.",
       ),
     },
     byok: {
       label: t("自带密钥", "Bring Your Own Key"),
       description: t(
-        "由访客选择已审核的供应商与模型，并在本次页面会话中临时输入密钥。",
-        "Lets visitors choose an approved provider and model, then enter a key for this page session only.",
+        "以后可以自己选供应商、填模型 ID，再临时输入 Key。",
+        "A future BYOK route will let you choose a provider, enter a model ID, and supply a temporary key.",
       ),
       unavailable: t(
-        "尚未开放已审核的供应商；供应商域名与浏览器直连能力确认后再启用。",
-        "No approved providers are available yet. This route will open after provider origins and direct browser access are verified.",
+        "供应商清单还是空的。等直连方式和安全限制确认后再开。",
+        "The provider list is still empty. This route stays closed until direct access and its safety limits are verified.",
       ),
       privacy: t(
-        "专用 Key 输入框中的密钥只保存在页面内存中：不写入草稿、浏览器存储或导出文件，刷新或关闭页面后即消失。请勿把密钥粘贴到会被保存的补充说明中。",
-        "A key entered in the dedicated key field lives in page memory only: it is never written to drafts, browser storage, or exports, and disappears on refresh or close. Do not paste a key into the saved notes field.",
+        "将来启用后，Key 只放在本页内存里：不进草稿和导出文件，刷新或关页就没了。不要把 Key 写进上面的备注框。",
+        "When enabled, a key will live only in this page's memory. It will not enter drafts or exports and will disappear on refresh or close. Do not put a key in the notes field.",
       ),
     },
   },
@@ -47,72 +47,104 @@ export const APP_COPY = {
     outline: {
       label: t("开放结构", "Open Outline"),
       description: t(
-        "允许保留缺口，适合查看下一步还需要决定什么。",
-        "Allows unresolved gaps so you can see what still needs a decision.",
+        "可以带着空白往下看，适合还没决定完时。",
+        "Leave some choices open while you are still deciding.",
       ),
     },
     full: {
       label: t("闭合命运", "Closed Fate"),
       description: t(
-        "至少需要一条已经闭合的命运路径。",
-        "Requires at least one closed fate path.",
+        "准备收束时再用；断掉的路径要先接上。",
+        "Use this when you are ready to close the story; broken paths must be joined first.",
       ),
     },
   },
   preview: {
-    name: t("结构预检", "Structure Check"),
+    name: t("这条命运现在走到哪里", "Where this fate stands"),
     disclaimer: t(
-      "这是关系结构诊断，不是故事场景、人物小传或大模型生成结果。",
-      "This is a relationship-structure diagnosis, not a story scene, character biography, or model-generated result.",
+      "下面只整理这组选择命中的关系和缺口，不是故事正文。",
+      "This page only arranges the links and gaps matched by these choices; it is not story prose.",
     ),
     section: {
-      closure: t("路径闭合", "Path Closure"),
-      edges: t("成立的关系", "Established Relations"),
-      conflicts: t("需要处理的冲突", "Conflicts to Resolve"),
-      gaps: t("仍待决定的缺口", "Open Decisions"),
+      closure: t("整条线走到哪了", "How far the line runs"),
+      edges: t("已经接上的地方", "What already connects"),
+      conflicts: t("互相顶住的选择", "Choices that collide"),
+      gaps: t("还没决定的地方", "What remains undecided"),
     },
-    emptyEdges: t("尚未形成选项级因果边。", "No option-level causal edge has formed yet."),
-    emptyConflicts: t("当前没有检测到冲突。", "No conflict is currently detected."),
-    emptyGaps: t("当前没有待补缺口。", "No open decision is currently detected."),
-    noActivePath: t("尚未启动命运路径。", "No fate path is active yet."),
+    emptyEdges: t("这些选择之间还没有现成的线。", "There is no rule-backed link between these choices yet."),
+    emptyConflicts: t("按现有规则，这些选择没有正面冲突。", "Under the current rules, these choices do not directly conflict."),
+    emptyGaps: t("眼下没有规则要求你再补什么。", "The current rules do not require another choice."),
+    noActivePath: t("还没选剧情内容。先从任意一项开始。", "No story choices yet. Start with any one of them."),
     partialClosure: (closed: number, active: number): LocalizedText =>
       t(
-        `已有 ${closed}／${active} 条路径闭合；其余路径仍需承接。`,
-        `${closed} of ${active} active ${active === 1 ? "path is" : "paths are"} closed; the remaining paths still need support.`,
+        `${active} 条路里，${closed} 条已经走通；其余还断着。`,
+        `${closed} of ${active} active ${active === 1 ? "path is" : "paths are"} complete; the rest still break somewhere.`,
       ),
     fullClosure: (closed: number): LocalizedText =>
       t(
-        `全部 ${closed} 条已启动路径均已闭合。`,
-        closed === 1 ? "The only active path is closed." : `All ${closed} active paths are closed.`,
+        closed === 1 ? "这条路已经走通。" : `${closed} 条路都已经走通。`,
+        closed === 1 ? "The active path runs through." : `All ${closed} active paths run through.`,
       ),
     noneClosed: (active: number): LocalizedText =>
       t(
-        `已有 ${active} 条路径启动，但还没有路径闭合。`,
-        `${active} ${active === 1 ? "path is" : "paths are"} active, but none is closed yet.`,
+        `${active} 条路已经起头，还没有一条走到底。`,
+        `${active} ${active === 1 ? "path has" : "paths have"} started, but none reaches the end yet.`,
       ),
-    conflictSummary: (blocking: number, warning: number): LocalizedText =>
-      t(
-        `检测到 ${blocking} 项阻断冲突与 ${warning} 项张力提醒。`,
-        `Detected ${blocking} blocking ${blocking === 1 ? "conflict" : "conflicts"} and ${warning} tension ${warning === 1 ? "warning" : "warnings"}.`,
-      ),
-    gapSummary: (required: number, recommended: number): LocalizedText =>
-      t(
-        `仍有 ${required} 项必要缺口与 ${recommended} 项建议补充。`,
-        `${required} required ${required === 1 ? "gap" : "gaps"} and ${recommended} recommended ${recommended === 1 ? "addition" : "additions"} remain.`,
-      ),
+    conflictSummary: (blocking: number, warning: number): LocalizedText => {
+      if (blocking === 0 && warning === 0) {
+        return t("没有冲突把路截断。", "No conflict cuts off the path.");
+      }
+      if (blocking === 0) {
+        return t(
+          `没有冲突截断路径；还有 ${warning} 处提醒可以一并看看。`,
+          `No conflict cuts off the path; ${warning} non-blocking ${warning === 1 ? "note remains" : "notes remain"}.`,
+        );
+      }
+      if (warning === 0) {
+        return t(
+          `${blocking} 处冲突把路截断了。`,
+          `${blocking} ${blocking === 1 ? "conflict cuts" : "conflicts cut"} off the path.`,
+        );
+      }
+      return t(
+        `${blocking} 处冲突把路截断；另有 ${warning} 处提醒不会截断路径。`,
+        `${blocking} blocking ${blocking === 1 ? "conflict cuts" : "conflicts cut"} off the path; ${warning} non-blocking ${warning === 1 ? "note remains" : "notes remain"}.`,
+      );
+    },
+    gapSummary: (required: number, recommended: number): LocalizedText => {
+      if (required === 0 && recommended === 0) {
+        return t("眼下没有绕不过去的缺口。", "There is no required gap right now.");
+      }
+      if (required === 0) {
+        return t(
+          `没有非补不可的地方；还有 ${recommended} 项可以以后再想。`,
+          `Nothing else is required; ${recommended} ${recommended === 1 ? "item can" : "items can"} wait.`,
+        );
+      }
+      if (recommended === 0) {
+        return t(
+          `${required} 项不补就接不上。`,
+          `${required} required ${required === 1 ? "gap remains" : "gaps remain"}.`,
+        );
+      }
+      return t(
+        `${required} 项不补就接不上；另有 ${recommended} 项可以以后再想。`,
+        `${required} required ${required === 1 ? "gap remains" : "gaps remain"}; ${recommended} ${recommended === 1 ? "item can" : "items can"} wait.`,
+      );
+    },
     fullNeedsClosedPath: t(
-      "“闭合命运”至少需要一条已闭合路径；可先切换到“开放结构”查看缺口。",
-      '"Closed Fate" needs at least one closed path. Switch to "Open Outline" to inspect unresolved gaps.',
+      "这条命运还没走通。切回“开放结构”，先看看断在哪里。",
+      'This fate does not run through yet. Switch to "Open Outline" to see where it breaks.',
     ),
   },
   draft: {
     enabled: t(
-      "本地草稿已开启：语言、生成路线、输出模式、选择、补充说明、供应商／模型 ID 与随机种子会保存在这台浏览器中。专用 Key 输入框不保存；请勿把密钥粘贴到补充说明中。",
-      "Local drafts are on: language, generation route, output mode, selections, notes, provider/model IDs, and random seed are saved in this browser. The dedicated key field is never saved; do not paste keys into notes.",
+      "这台浏览器会记住语言、路线、模式、选择、备注、供应商／模型 ID 和种子。Key 输入框不会保存；也别把 Key 写进备注。",
+      "This browser will remember the language, route, mode, choices, notes, provider/model IDs, and seed. The key field is not saved; do not put keys in notes.",
     ),
     disabled: t(
-      "本地草稿已关闭：离开或刷新页面后，未导出的配置可能丢失。",
-      "Local drafts are off. Unexported configuration may be lost when you refresh or leave.",
+      "现在不保存。刷新或离开前，记得导出想留下的内容。",
+      "Nothing is being saved. Export anything you want to keep before refreshing or leaving.",
     ),
     disableAction: t("停止保存并清除草稿", "Stop Saving and Clear Draft"),
     clearAction: t("清除本地草稿", "Clear Local Draft"),

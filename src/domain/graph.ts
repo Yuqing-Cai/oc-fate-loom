@@ -231,9 +231,9 @@ const deriveGaps = (
   });
 
 const PATH_LABELS: Readonly<Record<string, LocalizedText>> = {
-  "story-weave": text("核心命运织路", "Core fate weave"),
-  "lifespan-gap": text("寿命差承接", "Lifespan-gap carrying path"),
-  "borrowed-time": text("借来时间承接", "Borrowed-time carrying path"),
+  "story-weave": text("故事主线", "Story line"),
+  "lifespan-gap": text("寿命差", "Lifespan gap"),
+  "borrowed-time": text("借来的时间", "Borrowed time"),
   "possession-boundary": text("占有与边界", "Possession and boundaries"),
 };
 
@@ -262,7 +262,7 @@ const deriveCoreConnectivity = (
       relationIds: [],
       edgeIds: [],
       terminalOptionId: null,
-      reasons: [text("尚未选择终局，无法形成抵达终局的闭合路径。", "No ending is selected, so no closed route can reach an ending.")],
+      reasons: [text("终局还空着，这条主线暂时没有落点。", "The ending is still blank, so this story line has nowhere to land yet.")],
     };
   }
 
@@ -311,15 +311,15 @@ const deriveCoreConnectivity = (
 
   if (!hasEligibleRelation) {
     reasons.push(text(
-      "没有因果或支持关系抵达终局；填满选项不能代替路径。",
-      "No causal or supporting relation reaches the ending; completed fields cannot substitute for a path.",
+      "还没有因果或支持线接到终局。选项填满了，也不等于路已经走通。",
+      "No causal or supporting line reaches the ending yet. Filling every field does not, by itself, complete the route.",
     ));
   }
-  if (!hasContext) reasons.push(text("闭合路径尚无境遇来源。", "The route has no connected context source."));
-  if (!hasRoleA) reasons.push(text("她的选择尚未进入这条终局路径。", "Her choices do not yet enter this ending route."));
-  if (!hasRoleB) reasons.push(text("他的选择尚未进入这条终局路径。", "His choices do not yet enter this ending route."));
-  if (!hasRelationship) reasons.push(text("关系机制尚未进入这条终局路径。", "The relationship mechanism does not yet enter this ending route."));
-  if (!hasCost) reasons.push(text("代价尚未进入这条终局路径。", "A cost does not yet enter this ending route."));
+  if (!hasContext) reasons.push(text("境遇还没接进主线。", "The situation is not connected to the story line yet."));
+  if (!hasRoleA) reasons.push(text("她的选择还没接进主线。", "Her choice is not connected to the story line yet."));
+  if (!hasRoleB) reasons.push(text("他的选择还没接进主线。", "His choice is not connected to the story line yet."));
+  if (!hasRelationship) reasons.push(text("两人的相处方式还没接进主线。", "The way they relate is not connected to the story line yet."));
+  if (!hasCost) reasons.push(text("代价还没接到终局。", "The cost is not connected to the ending yet."));
 
   return {
     qualifies: hasEligibleRelation && hasContext && hasRoleA && hasRoleB && hasRelationship && hasCost,
@@ -349,21 +349,21 @@ const deriveCorePath = (
 
   if (conflicts.length > 0) {
     reasons.push(text(
-      `${conflicts.length} 处明确冲突阻断核心路径。`,
-      `${conflicts.length} explicit conflict${conflicts.length === 1 ? " blocks" : "s block"} the core route.`,
+      `${conflicts.length} 处冲突把主线截断了。`,
+      `${conflicts.length} conflict${conflicts.length === 1 ? " cuts" : "s cut"} off the story line.`,
     ));
   }
   if (pathGaps.length > 0) {
     reasons.push(text(
-      `核心路径仍有 ${pathGaps.length} 个必要缺口。`,
-      `The core route still has ${pathGaps.length} required gap${pathGaps.length === 1 ? "" : "s"}.`,
+      `主线还有 ${pathGaps.length} 个绕不过去的缺口。`,
+      `The story line still has ${pathGaps.length} gap${pathGaps.length === 1 ? "" : "s"} that cannot be skipped.`,
     ));
   }
   reasons.push(...connectivity.reasons);
   if (status === "closed") {
     reasons.push(text(
-      "境遇与两位角色均通过因果或支持关系进入关系、代价与终局。",
-      "Context and both characters reach relationship, cost, and ending through causal or supporting relations.",
+      "境遇、两个人、关系与代价都已经沿因果或支持线接到终局。",
+      "Situation, both characters, relationship, and cost now connect to the ending through causal or supporting lines.",
     ));
   }
 
@@ -419,20 +419,20 @@ const deriveSpecializedPath = (
       ? "open"
       : "closed";
   const reasons: LocalizedText[] = status === "closed"
-    ? [text("这一专项约束已有明确承接。", "This specialized constraint has explicit carrying support.")]
+    ? [text("这条附加线已经接上。", "This side line is connected.")]
     : status === "blocked"
       ? [text(
-          `${pathConflicts.length} 处冲突阻断这一专项路径。`,
-          `${pathConflicts.length} conflict${pathConflicts.length === 1 ? " blocks" : "s block"} this specialized path.`,
+          `${pathConflicts.length} 处冲突把这条线截断了。`,
+          `${pathConflicts.length} conflict${pathConflicts.length === 1 ? " cuts" : "s cut"} off this side line.`,
         )]
       : pathGaps.length > 0
         ? [text(
-            `这一专项路径仍有 ${pathGaps.length} 个必要缺口。`,
-            `This specialized path still has ${pathGaps.length} required gap${pathGaps.length === 1 ? "" : "s"}.`,
+            `这条线还有 ${pathGaps.length} 个绕不过去的缺口。`,
+            `This side line still has ${pathGaps.length} gap${pathGaps.length === 1 ? "" : "s"} that cannot be skipped.`,
           )]
         : [text(
-            "选项虽然已经填入，但只有张力或开放判断，没有因果或支持关系承接这条专项路径。",
-            "The fields are filled, but only tension or open judgments exist; no causal or supporting relation carries this specialized path.",
+            "选项已经填了，却只有张力或开放关系；还没有因果或支持线把它接起来。",
+            "The choices are filled, but they only create tension or an open relation; no causal or supporting line connects them yet.",
           )];
 
   return {
@@ -487,7 +487,7 @@ const deriveClosure = (paths: readonly FatePath[]): FateClosure => {
     return {
       status: "inactive",
       isClosed: false,
-      reasons: [text("尚未选择叙事轴，命运织路还没有启动。", "No narrative axis is selected, so the fate weave has not started.")],
+      reasons: [text("还没选剧情内容，命运图暂时不起线。", "No story choices yet, so the fate map has no lines to draw.")],
       activePathCount: 0,
       closedPathCount: 0,
       openPathCount: 0,
@@ -513,8 +513,8 @@ const deriveClosure = (paths: readonly FatePath[]): FateClosure => {
       status: "blocked",
       isClosed: false,
       reasons: [text(
-        `${blocked.length} 条已激活路径被明确冲突阻断。`,
-        `${blocked.length} active path${blocked.length === 1 ? " is" : "s are"} blocked by explicit conflict.`,
+        `${blocked.length} 条路被冲突截断。`,
+        `${blocked.length} path${blocked.length === 1 ? " is" : "s are"} cut off by conflict.`,
       )],
       ...counts,
     };
@@ -525,8 +525,8 @@ const deriveClosure = (paths: readonly FatePath[]): FateClosure => {
       status: "open",
       isClosed: false,
       reasons: [text(
-        `已有 ${closed.length}/${paths.length} 条激活路径闭合；核心因果路径与所有专项路径都闭合后才能完成。`,
-        `${closed.length} of ${paths.length} active paths are closed; the core causal route and every specialized path must close.`,
+        `${closed.length}/${paths.length} 条路已经走通；主线和所有已经起头的附加线都走到底，才算闭合。`,
+        `${closed.length} of ${paths.length} paths are complete; the story line and every side line already in play must reach the end.`,
       )],
       ...counts,
     };
@@ -536,8 +536,12 @@ const deriveClosure = (paths: readonly FatePath[]): FateClosure => {
     status: "closed",
     isClosed: true,
     reasons: [text(
-      `全部 ${paths.length} 条已激活路径均已闭合，且核心路径真实抵达终局。`,
-      `All ${paths.length} active path${paths.length === 1 ? " is" : "s are"} closed, and the core route genuinely reaches the ending.`,
+      paths.length === 1
+        ? "这条路已经走通，主线也接到了终局。"
+        : `${paths.length} 条路都已经走通，主线也接到了终局。`,
+      paths.length === 1
+        ? "The path is complete, and the story line reaches the ending."
+        : `All ${paths.length} paths are complete, and the story line reaches the ending.`,
     )],
     ...counts,
   };

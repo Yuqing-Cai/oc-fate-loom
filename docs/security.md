@@ -1,5 +1,11 @@
 # Security design
 
+## Current state
+
+The deployed page performs an offline structure check. No provider, relay,
+model call, or API-key route is enabled. The rest of this document defines the
+conditions that must be met before either future generation route can open.
+
 ## Trust model
 
 The browser, browser extensions, local device, and all user-entered values are
@@ -62,7 +68,7 @@ Use stable request IDs and coarse outcome codes for diagnostics. Production
 error messages must be mapped to a small public error vocabulary before API
 access is enabled.
 
-## Controls intentionally not enabled yet
+## Controls not implemented
 
 The code defines, but does not currently enforce, contracts for:
 
@@ -71,9 +77,8 @@ The code defines, but does not currently enforce, contracts for:
 - upstream error redaction;
 - output byte/token limits.
 
-This is an explicit release blocker, not a safe default. No provider or relay
-should be registered until these controls, rate limiting, abuse prevention,
-and end-to-end tests are implemented.
+No provider or relay may be registered until these controls, rate limiting,
+abuse prevention, and end-to-end tests are implemented.
 
 ## Release checklist
 
@@ -88,4 +93,3 @@ and end-to-end tests are implemented.
 - [ ] CSP `connect-src` contains only routes that are actually enabled.
 - [ ] Key-clear behavior is tested across reload, navigation, and BFCache.
 - [ ] Logs and error monitoring are checked for prompt and credential leakage.
-

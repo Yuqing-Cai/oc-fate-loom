@@ -3,7 +3,7 @@
 ## Supported versions
 
 The project is pre-release. Security fixes are applied only to the latest
-commit on the default branch and to the currently deployed preview.
+commit on the default branch and to the current GitHub Pages deployment.
 
 ## Reporting a vulnerability
 
@@ -36,4 +36,3 @@ from prior commits, caches, logs, build artifacts, or forks.
 
 See [docs/security.md](docs/security.md) for the API threat model and release
 checklist.
-
