@@ -1,0 +1,199 @@
+import { describe, expect, it } from "vitest";
+import type { FateGraph } from "../domain/types";
+import type { FateAnalysis, LocalizedText } from "./contracts";
+import { buildStructurePreview, generateStructurePreview } from "./preview";
+import { createInitialAppState, reduceAppState } from "./state";
+
+const t = (zh: string, en: string): LocalizedText => ({ zh, en });
+
+const OPEN_ANALYSIS: FateAnalysis = {
+  edges: [
+    {
+      id: "edge-motive-choice",
+      from: "motive-protect",
+      to: "choice-refuse-order",
+      kind: "causal",
+      rationale: t("保护欲迫使他违抗命令。", "The need to protect forces him to defy the order."),
+    },
+    {
+      id: "edge-boundary-choice",
+      from: "boundary-no-captivity",
+      to: "choice-refuse-order",
+      kind: "support",
+      rationale: t("她明确的边界使违抗成为共同决定。", "Her explicit boundary makes defiance a shared decision."),
+    },
+  ],
+  conflicts: [
+    {
+      id: "conflict-power-consent",
+      severity: "warning",
+      optionIds: ["power-absolute", "boundary-no-captivity"],
+      message: t("绝对权力会持续挤压她的退出权。", "Absolute power keeps eroding her right to leave."),
+      repair: t("补充可执行的退出机制。", "Add an enforceable exit mechanism."),
+    },
+  ],
+  gaps: [
+    {
+      id: "gap-cost",
+      priority: "required",
+      targetAxisId: "fate.cost",
+      message: t("违抗命令尚未产生可见代价。", "Defying the order has no visible cost yet."),
+      suggestion: t("选择一种双方都必须承担的损失。", "Choose a loss both characters must bear."),
+    },
+  ],
+  paths: [
+    {
+      id: "path-choice-cost-ending",
+      status: "open",
+      edgeIds: ["edge-motive-choice"],
+      summary: t("抉择已发生，但代价与终局仍未承接。", "The choice exists, but cost and ending remain unsupported."),
+    },
+  ],
+  closure: { activePathCount: 1, closedPathIds: [], isFullyClosed: false },
+};
+
+const CLOSED_ANALYSIS: FateAnalysis = {
+  ...OPEN_ANALYSIS,
+  gaps: [],
+  paths: [
+    {
+      id: "path-choice-cost-ending",
+      status: "closed",
+      edgeIds: ["edge-motive-choice", "edge-cost-ending"],
+      summary: t("违抗、共同代价与离开旧秩序构成闭合路径。", "Defiance, shared cost, and leaving the old order form a closed path."),
+    },
+  ],
+  closure: { activePathCount: 1, closedPathIds: ["path-choice-cost-ending"], isFullyClosed: true },
+};
+
+const DOMAIN_GRAPH: FateGraph = {
+  selections: { "roleA.goal": "motive-protect", "roleA.choice": "choice-refuse-order" },
+  nodes: [],
+  edges: [
+    {
+      id: "edge-domain",
+      ruleId: "rule-domain",
+      source: "motive-protect",
+      target: "choice-refuse-order",
+      kind: "causal",
+      label: t("保护导向违抗", "Protection leads to defiance"),
+    },
+  ],
+  relations: [
+    {
+      id: "relation-domain",
+      ruleId: "rule-domain",
+      kind: "causal",
+      optionIds: ["motive-protect", "choice-refuse-order"],
+      label: t("保护导向违抗", "Protection leads to defiance"),
+      rationale: t("保护目标使服从不再可行。", "The protection goal makes obedience untenable."),
+    },
+  ],
+  gaps: [
+    {
+      id: "gap-domain",
+      pathId: "choice-cost-ending",
+      activatedBy: ["choice-refuse-order"],
+      requiredAxis: "fate.cost",
+      acceptableOptions: null,
+      selectedOption: null,
+      blocking: true,
+      message: t("违抗仍需要代价承接。", "Defiance still needs a cost."),
+    },
+  ],
+  conflicts: [],
+  closure: {
+    status: "open",
+    isClosed: false,
+    reasons: [t("抉择路径缺少代价。", "The choice path lacks a cost.")],
+  },
+};
+
+describe("offline structure check", () => {
+  it("honestly builds an open outline from causal edges, conflicts, gaps, and closure", () => {
+    const state = createInitialAppState({ seed: "audit-seed" });
+    const result = buildStructurePreview(state, OPEN_ANALYSIS);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.preview.kind).toBe("structure-preview");
+    expect(result.preview.name).toEqual({ zh: "结构预检", en: "Structure Check" });
+    expect(result.preview.disclaimer.zh).toContain("不是故事场景");
+    expect(result.preview.status).toBe("open");
+    expect(result.preview.metrics).toEqual({
+      edgeCount: 2,
+      conflictCount: 1,
+      gapCount: 1,
+      activePathCount: 1,
+      closedPathCount: 0,
+    });
+
+    const edges = result.preview.sections.find((section) => section.id === "edges");
+    const conflicts = result.preview.sections.find((section) => section.id === "conflicts");
+    const gaps = result.preview.sections.find((section) => section.id === "gaps");
+    const closure = result.preview.sections.find((section) => section.id === "closure");
+    expect(edges?.items.map((item) => item.text.zh)).toContain("保护欲迫使他违抗命令。");
+    expect(conflicts?.items[0]?.text.zh).toContain("退出权");
+    expect(gaps?.items[0]?.text.zh).toContain("代价");
+    expect(closure?.summary.zh).toContain("还没有路径闭合");
+  });
+
+  it("allows gaps in outline mode but blocks full mode without a closed fate path", () => {
+    const outline = createInitialAppState();
+    expect(buildStructurePreview(outline, OPEN_ANALYSIS).ok).toBe(true);
+
+    const full = reduceAppState(outline, { type: "set-output-mode", outputMode: "full" });
+    const result = buildStructurePreview(full, OPEN_ANALYSIS);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues).toEqual([
+      expect.objectContaining({ code: "FULL_REQUIRES_CLOSED_PATH" }),
+    ]);
+    expect(result.issues[0]?.message.en).toContain("at least one closed path");
+  });
+
+  it("builds full mode once at least one closed path exists", () => {
+    const full = reduceAppState(createInitialAppState(), { type: "set-output-mode", outputMode: "full" });
+    const result = buildStructurePreview(full, CLOSED_ANALYSIS);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.preview.status).toBe("closed");
+    expect(result.preview.sections[0]?.summary).toEqual({
+      zh: "全部 1 条已启动路径均已闭合。",
+      en: "The only active path is closed.",
+    });
+  });
+
+  it("uses the seed to produce a reproducible presentation order", () => {
+    const first = buildStructurePreview(createInitialAppState({ seed: "stable" }), OPEN_ANALYSIS);
+    const second = buildStructurePreview(createInitialAppState({ seed: "stable" }), {
+      ...OPEN_ANALYSIS,
+      edges: [...OPEN_ANALYSIS.edges].reverse(),
+    });
+    expect(first).toEqual(second);
+  });
+
+  it("adapts the domain graph directly and uses strict graph closure for full mode", () => {
+    const outlineResult = generateStructurePreview(createInitialAppState(), DOMAIN_GRAPH);
+    expect(outlineResult.ok).toBe(true);
+    if (!outlineResult.ok) return;
+    expect(outlineResult.preview.route).toBe("offline");
+    expect(outlineResult.preview.sections.find((section) => section.id === "edges")?.items[0]?.text.zh).toBe(
+      "保护目标使服从不再可行。",
+    );
+
+    const full = reduceAppState(createInitialAppState(), { type: "set-output-mode", outputMode: "full" });
+    expect(generateStructurePreview(full, DOMAIN_GRAPH).ok).toBe(false);
+    expect(
+      generateStructurePreview(full, {
+        ...DOMAIN_GRAPH,
+        gaps: [],
+        closure: {
+          status: "closed",
+          isClosed: true,
+          reasons: [t("抉择、代价与终局均有承接。", "Choice, cost, and ending are all supported.")],
+        },
+      }).ok,
+    ).toBe(true);
+  });
+});

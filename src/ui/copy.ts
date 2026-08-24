@@ -1,0 +1,121 @@
+import type { Locale, LocalizedText, RiskTag } from "../domain";
+
+const t = (zh: string, en: string): LocalizedText => ({ zh, en });
+
+export const UI_COPY = {
+  brand: t("命运织机", "Fate Loom"),
+  version: t("干净重建 · 结构预检", "Clean rebuild · structure check"),
+  help: t("使用说明", "How it works"),
+  switchLanguage: t("Switch to English", "切换到中文"),
+  thesisEyebrow: t("双角色命运工作台", "A two-character fate workbench"),
+  thesisTitle: t("让两个人的选择真正改变结局。", "Let both characters change the ending."),
+  thesisLede: t(
+    "开放结构不必填满所有轴；闭合命运会要求必要承接。每条连线都来自具体选项，系统会区分因果、支持、张力、冲突与仍待作者决定的部分。",
+    "Open Outline does not require every axis; Closed Fate requires its necessary supports. Every visible link comes from specific options, separating cause, support, tension, conflict, and questions that remain yours to decide.",
+  ),
+  outputModeLabel: t("这次检查到哪里？", "How far should this check go?"),
+  chapters: t("创作层", "Creative layers"),
+  selectedCount: (selected: number, total: number): LocalizedText =>
+    t(`已选 ${selected}／${total} 项`, `${selected} of ${total} selected`),
+  roleA: t("先看她", "Start with her"),
+  roleB: t("再看他", "Then him"),
+  roleSwitchLabel: t("当前角色", "Current character"),
+  axisHelp: t("了解这条轴", "About this axis"),
+  clearAxis: t("暂不设定", "Leave open"),
+  previous: t("上一层", "Previous layer"),
+  next: t("下一层", "Next layer"),
+  randomStart: t("用种子补齐四个起点", "Fill four starting points from seed"),
+  fillGap: t("按规则补一个缺口", "Fill one rule-backed gap"),
+  noGap: t("当前没有可自动补足的缺口", "No rule-backed gap can be filled right now"),
+  fateMap: t("命运图", "Fate map"),
+  showFate: t("查看命运图", "Open fate map"),
+  fateEmpty: t(
+    "先选两个彼此有关的具体选项；这里不会用轴名冒充因果。",
+    "Choose two specifically related options. Axis names alone will never be presented as causality.",
+  ),
+  established: t("成立的连线", "Established links"),
+  gaps: t("待承接", "Open decisions"),
+  conflicts: t("冲突", "Conflicts"),
+  selectedOverview: t("全部已选设定", "All selections"),
+  edit: t("修改", "Edit"),
+  compose: t("结构预检", "Structure check"),
+  notes: t("创作备注", "Creative notes"),
+  notesHint: t("仅保存和导出；不会改变离线规则判断", "Saved and exported only; does not affect offline rules"),
+  notesPlaceholder: t(
+    "例如：关系推进克制；不要替角色宣布某种结局是最好的……",
+    "For example: keep the bond restrained; do not declare an ending best on the characters' behalf…",
+  ),
+  route: t("生成路线", "Generation route"),
+  draft: t("本地草稿", "Local draft"),
+  draftOn: t("正在保存", "Saving locally"),
+  draftOff: t("不保存", "Not saving"),
+  disableDraft: t("停止保存并清除", "Stop saving and clear"),
+  enableDraft: t("开启本地草稿", "Enable local draft"),
+  clearDraft: t("清除当前存档（后续编辑会再保存）", "Clear now; later edits will save again"),
+  seed: t("随机种子", "Random seed"),
+  nextSeed: t("换一个种子", "Use next seed"),
+  clearAll: t("清空全部配置", "Clear all configuration"),
+  export: t("导出配置", "Export configuration"),
+  preview: t("查看结构预检", "Open structure check"),
+  adjust: t("返回调整", "Return to editing"),
+  copy: t("复制预检", "Copy check"),
+  copied: t("结构预检已复制。", "Structure check copied."),
+  resultEyebrow: t("离线结构预检 · 无网络请求", "Offline structure check · no network request"),
+  footer: t(
+    "代码 MIT · 叙事内容保留所有权利 · 当前不调用任何模型",
+    "Code MIT · narrative content all rights reserved · no model calls in this build",
+  ),
+  close: t("关闭", "Close"),
+  confirmClearTitle: t("清空全部配置？", "Clear all configuration?"),
+  confirmClearBody: t(
+    "这会清除当前选择、备注与连接设置；已下载的导出文件不受影响。",
+    "This clears current selections, notes, and connection settings. Downloaded exports are unaffected.",
+  ),
+  cancel: t("取消", "Cancel"),
+  confirmClear: t("确认清空", "Clear configuration"),
+  helpTitle: t("怎样使用命运织机", "How Fate Loom works"),
+  helpIntro: t(
+    "这不是填满即可得出正确答案的问卷，而是一组会公开说明推理边界的叙事控制。",
+    "This is not a questionnaire that becomes correct when complete. It is a set of narrative controls that exposes the limits of its reasoning.",
+  ),
+  routeUnavailable: t("当前路线尚未开放", "This route is not available yet"),
+  byokProvider: t("供应商", "Provider"),
+  byokModel: t("模型 ID", "Model ID"),
+  byokKey: t("API Key", "API key"),
+  noProvider: t("暂无已审核供应商", "No approved provider"),
+  clearKey: t("立即清除", "Clear now"),
+  fullNeedsClosure: t(
+    "闭合命运需要至少一条真正闭合的路径；先查看命运图中的必要缺口。",
+    "Closed Fate requires at least one genuinely closed path. Review the required gaps in the fate map first.",
+  ),
+  noSelections: t("先选择至少一项结构轴。", "Choose at least one structural option first."),
+  graphColumns: {
+    context: t("境遇", "Context"),
+    characters: t("双角色", "Characters"),
+    relationship: t("关系", "Bond"),
+    fate: t("命运", "Fate"),
+  },
+  relationKind: {
+    causal: t("因果", "Cause"),
+    support: t("支持", "Support"),
+    tension: t("张力", "Tension"),
+    conflict: t("冲突", "Conflict"),
+    open: t("开放", "Open"),
+  },
+} as const;
+
+export const RISK_COPY: Readonly<Record<RiskTag, LocalizedText>> = {
+  "body-autonomy": t("身体自主", "bodily autonomy"),
+  coercion: t("强迫", "coercion"),
+  control: t("控制", "control"),
+  death: t("死亡", "death"),
+  dependency: t("依赖", "dependency"),
+  "identity-loss": t("身份消融", "identity loss"),
+  "power-imbalance": t("权力失衡", "power imbalance"),
+  separation: t("离散", "separation"),
+  violence: t("暴力", "violence"),
+};
+
+export function uiText(value: LocalizedText, locale: Locale): string {
+  return value[locale];
+}
