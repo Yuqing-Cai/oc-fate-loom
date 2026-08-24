@@ -7,40 +7,34 @@ export const APP_COPY = {
     offline: {
       label: t("只看结构", "Structure only"),
       description: t(
-        "在浏览器里核对连线、冲突和缺口，不写正文。",
-        "Checks links, conflicts, and gaps in the browser. It does not write prose.",
+        "在浏览器里核对连线、冲突和缺口。",
+        "Checks links, conflicts, and gaps in the browser.",
       ),
-      privacy: t("运行结构检查时，不调用模型或第三方服务。", "Running this check calls no model or third-party service."),
+      privacy: t("离线 · 无模型调用", "Offline · no model call"),
     },
     default: {
       label: t("站点体验", "Hosted Experience"),
       description: t(
-        "以后由本站提供一个默认模型，打开页面就能试。",
-        "A future default model will let visitors try the site without bringing a key.",
+        "预留给打开页面就能试的默认模型。",
+        "Reserved for a default model visitors can try right away.",
       ),
       unavailable: t(
-        "还没有选定模型，也没有部署转发服务。这一项暂时不能用。",
-        "No model or relay has been chosen yet, so this route is unavailable.",
+        "默认模型和转发服务还没定。",
+        "The default model and relay service are still to be decided.",
       ),
-      privacy: t(
-        "当前不会发送任何内容。正式开放时，页面会另行说明发送哪些字段、是否保存以及保存多久。",
-        "Nothing is sent today. Before this route opens, the page will state which fields are sent, whether they are retained, and for how long.",
-      ),
+      privacy: t("本站提供模型与凭据", "Model and credentials provided by this site"),
     },
     byok: {
       label: t("自带密钥", "Bring Your Own Key"),
       description: t(
-        "以后可以自己选供应商、填模型 ID，再临时输入 Key。",
-        "A future BYOK route will let you choose a provider, enter a model ID, and supply a temporary key.",
+        "预留给自选供应商、模型 ID 和临时 Key。",
+        "Reserved for a provider, model ID, and temporary key of your choice.",
       ),
       unavailable: t(
-        "供应商清单还是空的。等直连方式和安全限制确认后再开。",
-        "The provider list is still empty. This route stays closed until direct access and its safety limits are verified.",
+        "供应商清单、直连方式和安全限制还没定。",
+        "The provider list, direct connection method, and safety limits are still to be decided.",
       ),
-      privacy: t(
-        "将来启用后，Key 只放在本页内存里：不进草稿和导出文件，刷新或关页就没了。不要把 Key 写进上面的备注框。",
-        "When enabled, a key will live only in this page's memory. It will not enter drafts or exports and will disappear on refresh or close. Do not put a key in the notes field.",
-      ),
+      privacy: t("自选模型 · Key 仅在本页", "Your model · key used only in this page"),
     },
   },
   outputMode: {
@@ -54,16 +48,16 @@ export const APP_COPY = {
     full: {
       label: t("闭合命运", "Closed Fate"),
       description: t(
-        "准备收束时再用；断掉的路径要先接上。",
-        "Use this when you are ready to close the story; broken paths must be joined first.",
+        "“闭合命运”留到收束时用；断着的路径需要接上。",
+        "Save Closed Fate for the point of closure; broken paths need to be joined.",
       ),
     },
   },
   preview: {
     name: t("这条命运现在走到哪里", "Where this fate stands"),
     disclaimer: t(
-      "下面只整理这组选择命中的关系和缺口，不是故事正文。",
-      "This page only arranges the links and gaps matched by these choices; it is not story prose.",
+      "下面是这组选择已经接上的关系，以及仍然断着的地方。",
+      "Below are the links these choices have made and the places where the thread still breaks.",
     ),
     section: {
       closure: t("整条线走到哪了", "How far the line runs"),
@@ -133,18 +127,18 @@ export const APP_COPY = {
       );
     },
     fullNeedsClosedPath: t(
-      "这条命运还没走通。切回“开放结构”，先看看断在哪里。",
+      "这条命运还没走通。切回“开放结构”，看看断在哪里。",
       'This fate does not run through yet. Switch to "Open Outline" to see where it breaks.',
     ),
   },
   draft: {
     enabled: t(
-      "这台浏览器会记住语言、路线、模式、选择、备注、供应商／模型 ID 和种子。Key 输入框不会保存；也别把 Key 写进备注。",
-      "This browser will remember the language, route, mode, choices, notes, provider/model IDs, and seed. The key field is not saved; do not put keys in notes.",
+      "已保存：语言、路线、模式、选择、备注、供应商／模型 ID 和种子。",
+      "Saved: language, route, mode, choices, notes, provider/model IDs, and seed.",
     ),
     disabled: t(
-      "现在不保存。刷新或离开前，记得导出想留下的内容。",
-      "Nothing is being saved. Export anything you want to keep before refreshing or leaving.",
+      "想留下这次的内容，刷新前记得导出。",
+      "Export this draft before refreshing if you want to keep it.",
     ),
     disableAction: t("停止保存并清除草稿", "Stop Saving and Clear Draft"),
     clearAction: t("清除本地草稿", "Clear Local Draft"),

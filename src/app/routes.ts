@@ -75,8 +75,8 @@ const routeMessage = {
   provider: { zh: "请选择已审核的供应商。", en: "Choose an approved provider." },
   model: { zh: "请输入该供应商的模型 ID。", en: "Enter a model ID for that provider." },
   key: {
-    zh: "请为本次页面会话输入 API Key；它不会进入应用状态或草稿。",
-    en: "Enter an API key for this page session. It will not enter app state or drafts.",
+    zh: "请为本次页面会话输入 API Key；专用输入框只在当前页使用。",
+    en: "Enter an API key for this page session; the dedicated field is used only in the current page.",
   },
 } satisfies Record<string, LocalizedText>;
 

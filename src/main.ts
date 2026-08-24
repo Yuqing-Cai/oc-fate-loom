@@ -67,13 +67,13 @@ const EXTRA_COPY = {
   closed: t("已闭合", "Closed"),
   inactive: t("未启动", "Inactive"),
   graphSummary: t(
-    "图上只画已经有依据的线。空着的地方，仍由你决定。",
-    "The map draws only rule-backed links. Empty space still belongs to you.",
+    "命中的线画在图上；空着的地方等你来定。",
+    "Matched threads appear on the map; open space waits for your decision.",
   ),
   noFindings: t("这里暂时没有内容。", "Nothing here yet."),
   noSelectionsOverview: t("还没选东西。", "Nothing selected yet."),
-  chapterActorA: t("先替她选五项；他的栏目不会跟着填写。", "Choose five things for her; his column will not fill itself."),
-  chapterActorB: t("再替他选。他可以和她完全不同。", "Now choose for him. His answers may be entirely different."),
+  chapterActorA: t("她有五项可选；他的答案留在另一栏。", "She has five choices here; his answers have their own column."),
+  chapterActorB: t("轮到他。他可以和她完全不同。", "Now it is his turn. His answers may be entirely different."),
   routeKeyStateEmpty: t("本页没有暂存 Key。", "No key is held in this page."),
   routeKeyStateSet: t("Key 暂存在本页；刷新或关页就会清掉。", "The key is held in this page and clears on refresh or close."),
   draftUnavailable: t("浏览器不允许使用本地存储，这次不会保存草稿。", "Browser storage is unavailable, so this draft will not be kept."),
@@ -88,13 +88,21 @@ const EXTRA_COPY = {
     t("从境遇、两个人和关系里各挑一两项。还没想好的，可以空着。", "Pick one or two items from the context, each character, and the relationship. Leave the rest open."),
     t("打开命运图，看哪些选择已经相连，哪些彼此冲突，哪条路还缺一环。", "Open the fate map to see what connects, what collides, and where a path still breaks."),
     t("还在摸索时用“开放结构”；准备收束时再试“闭合命运”。", "Use Open Outline while exploring; switch to Closed Fate when you are ready to finish the line."),
-    t("这版不调用模型。另两条路线只是留位，现在都不能用。", "This build calls no model. The other two routes are placeholders and remain unavailable."),
   ],
+  helpPrivacyTitle: t("隐私", "Privacy"),
+  helpPrivacyDraft: t(
+    "当前结构检查在本页完成。草稿默认关闭；开启后，这次的配置和备注会留在这台浏览器，导出文件也会带上它们。",
+    "Current structure checks run in this page. Draft saving is off by default; when enabled, this configuration and its notes remain in this browser and are included in exports.",
+  ),
+  helpPrivacyKey: t(
+    "自带密钥路线启用后，Key 只在本页暂存，刷新或关页即清；它不会进入草稿和导出文件。备注属于普通文本，请别把 Key 粘贴进去。",
+    "Once BYOK is available, keys stay only in page memory and clear on refresh or close; they never enter drafts or exports. Notes are ordinary text, so do not paste a key there.",
+  ),
   axisModalIntro: t("一次选一项。现在不想定，也可以先空着。", "Choose one item, or leave the axis open for now."),
   riskPrefix: t("涉及：", "Touches: "),
   randomComplete: t("起点已经放进来了。", "Starting points were added."),
   gapComplete: t("补了一项，看看这条线有没有往前走。", "One item was added; see whether the line moves forward."),
-  exported: t("配置 JSON 已下载。专用 Key 输入框的内容不会写进文件。", "The configuration JSON was downloaded. The dedicated key field is not included."),
+  exported: t("配置 JSON 已下载。", "The configuration JSON was downloaded."),
   clearKeyDone: t("本页暂存的 Key 已清掉。", "The key held by this page was cleared."),
   previewCopyFailed: t("浏览器没有允许复制。", "The browser did not allow clipboard access."),
   resultMode: {
@@ -995,7 +1003,14 @@ function showHelpDialog(): void {
   body.append(element("p", "", localized(UI_COPY.helpIntro)));
   const list = element("ol", "help-list");
   EXTRA_COPY.helpSteps.forEach((step) => list.append(element("li", "", localized(step))));
-  body.append(list);
+  const privacy = element("section", "help-privacy");
+  append(
+    privacy,
+    element("h3", "", localized(EXTRA_COPY.helpPrivacyTitle)),
+    element("p", "", localized(EXTRA_COPY.helpPrivacyDraft)),
+    element("p", "", localized(EXTRA_COPY.helpPrivacyKey)),
+  );
+  body.append(list, privacy);
   showDialog(localized(UI_COPY.helpTitle), body);
 }
 

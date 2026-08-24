@@ -120,8 +120,8 @@ describe("offline structure check", () => {
     expect(result.preview.kind).toBe("structure-preview");
     expect(result.preview.name.zh).toBeTruthy();
     expect(result.preview.name.en).toBeTruthy();
-    expect(result.preview.disclaimer.zh).toContain("故事正文");
-    expect(result.preview.disclaimer.en).toContain("story prose");
+    expect(result.preview.disclaimer.zh).toContain("仍然断着");
+    expect(result.preview.disclaimer.en).toContain("still breaks");
     expect(result.preview.status).toBe("open");
     expect(result.preview.metrics).toEqual({
       edgeCount: 2,

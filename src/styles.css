@@ -1517,6 +1517,27 @@ textarea:disabled {
   padding-left: 20px;
 }
 
+.help-privacy {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.help-privacy h3,
+.help-privacy p {
+  margin: 0;
+}
+
+.help-privacy p + p {
+  margin-top: 7px;
+}
+
+.help-privacy h3 {
+  margin-bottom: 6px;
+  color: var(--paper);
+  font-size: 11px;
+}
+
 .result-metrics {
   display: grid;
   width: min(1320px, calc(100% - 56px));
